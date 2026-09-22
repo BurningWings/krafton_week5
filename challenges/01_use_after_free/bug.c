@@ -91,12 +91,12 @@ static Widget *widget_new(const VTable *vt, int id, const char *label) {
     *   tip 2. 그래서 sizeof *w 는 (VLA 제외) 컴파일 타임에 sizeof(Widget) 상수로 치환된다.
     *   생각해보기: sizeof(Widget) 대신 sizeof *w 로 쓰면 어떤 장점이 있을까?
     */
-    Widget *w = malloc(sizeof *w);
-    if (!w) { perror("malloc"); exit(1); }
+    Widget *w = malloc(sizeof *w); 
+    if (!w) { perror("malloc"); exit(1); } //exit(1) = 비정상 종료 0은 정상 종료 //perror = 오류 메시지 출력
     w->vtbl = vt;
     w->id = id;
     w->closed = 0;
-    strncpy(w->label, label, sizeof(w->label) - 1);
+    strncpy(w->label, label, sizeof(w->label) - 1); // 문자열 복사
     w->label[sizeof(w->label) - 1] = '\0';
     return w;
 }
@@ -120,7 +120,7 @@ static void screen_dispatch(Screen *s, int code) {
 static void screen_render(Screen *s) {
     for (int i = 0; i < s->count; i++) {
         Widget *w = s->items[i];
-        w->vtbl->render(w);      
+        w->vtbl->render(w); //이부분이 문제
     }
 }
 
@@ -146,7 +146,7 @@ static char *app_build_status(const char *text) {
 }
 
 int main(void) {
-    Screen s = { .count = 0 };
+    Screen s = { .count = 0 }; //처음에 0으로 초기화
 
     screen_add(&s, widget_new(&LABEL_VT,  10, "Welcome"));
     screen_add(&s, widget_new(&BUTTON_VT, 11, "OK"));

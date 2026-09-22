@@ -46,7 +46,7 @@ static char *skip_ws(char *s) {
 }
 
 static void parse_headers(char *text, Headers *h) {
-    for (char *line = strtok(text, "\n"); line != NULL; line = strtok(NULL, "\n")) {
+    for (char *line = strtok(text, "\n"); line != NULL; line = strtok(NULL, "\n")) { //반복하는데 SORTOK
         char *colon = strchr(line, ':');   
 
         *colon = '\0';                    
@@ -70,7 +70,7 @@ int main(void) {
         "User-Agent: memdbg-cli\n";
 
     Headers h = { .count = 0 };
-    parse_headers(raw, &h);                
+    parse_headers(raw, &h);    //h의 카운터는 0인상태            
 
     printf("parsed %d headers\n", h.count);
     for (int i = 0; i < h.count; i++)
