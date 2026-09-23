@@ -73,7 +73,7 @@ static void dialog_render(Widget *self) {
     printf("  <<Dialog #%d>> %s\n", self->id, self->label);
 }
 
-static void widget_noop_event(Widget *self, int code) { (void)self; (void)code; }
+static void widget_noop_event(Widget *self, int code) { (void)self; (void)code; } //아무것도 안함 애는 없어도 됨
 
 /* 다이얼로그는 이벤트 코드 1(닫기)을 받으면 스스로 정리(파괴)된다 */
 static void dialog_on_event(Widget *self, int code);
@@ -97,12 +97,13 @@ static Widget *widget_new(const VTable *vt, int id, const char *label) {
     w->id = id;
     w->closed = 0;
     strncpy(w->label, label, sizeof(w->label) - 1); // 문자열 복사
-    w->label[sizeof(w->label) - 1] = '\0';
+    w->label[sizeof(w->label) - 1] = '\0';//마지막에 \0 추가
     return w;
 }
 
 static void widget_destroy(Widget *w) {
-    free(w);          
+    free(w);
+    // w=NULL;
 }
 
 /* ── Screen ──────────────────────────────────────────────────── */
@@ -120,19 +121,21 @@ static void screen_dispatch(Screen *s, int code) {
 static void screen_render(Screen *s) {
     for (int i = 0; i < s->count; i++) {
         Widget *w = s->items[i];
+        if (w==NULL) continue;
         w->vtbl->render(w); //이부분이 문제
     }
 }
 
-static void dialog_on_event(Widget *self, int code) {
-    if (code == 1) {
-        self->closed = 1;
-        widget_destroy(self);   
+static void dialog_on_event(Widget *self, int code) { //작동을 안하고 있음
+    if (code == 1) { //오 코드가 어디서 받는건지 몰랐는데 이제 이해 ㄱㄴ ㄹㅈㄷ
+        self->closed = 1; //3번 위젯
+        self=NULL;
+        widget_destroy(self);
     }
 }
 
 static char *app_build_status(const char *text) {
-    char *msg = malloc(sizeof(Widget));   
+    char *msg = malloc(sizeof(Widget)); //Widget 의 사이즈는 40 바이트   
     if (!msg) exit(1);
 
     /* [테스트용 연출] 재사용한 메모리를 0xAB 로 '일부러' 덮어써서 오염시킨다.
@@ -147,18 +150,16 @@ static char *app_build_status(const char *text) {
 
 int main(void) {
     Screen s = { .count = 0 }; //처음에 0으로 초기화
-
     screen_add(&s, widget_new(&LABEL_VT,  10, "Welcome"));
     screen_add(&s, widget_new(&BUTTON_VT, 11, "OK"));
     screen_add(&s, widget_new(&DIALOG_VT, 12, "Are you sure?"));  /* items[2] */
     screen_add(&s, widget_new(&BUTTON_VT, 13, "Cancel"));
-
     printf("frame 1:\n");
     screen_render(&s);
-    screen_dispatch(&s, 1);
+    screen_dispatch(&s, 1); //3번 위젯을 free 시킴
+    
 
     /* TODO 닫힌(closed) 위젯을 여기서 정리(free + 해당 슬롯 NULL)할 필요가 있음 */
-
     char *status = app_build_status("dialog closed");
     printf("%s\n", status);
 
