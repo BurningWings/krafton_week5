@@ -64,12 +64,12 @@ static void list_ensure(IntList *l, size_t need) {
 
     size_t newcap = l->cap ? l->cap * 2 : 8;
     while (newcap < need) newcap *= 2;
-
+    l->cap  = newcap;
     int *p = realloc(l->data, l->cap * sizeof(int));
     if (!p) { perror("realloc"); free(l->data); exit(1); }
 
     l->data = p;
-    l->cap  = newcap;
+    
 }
 
 static void list_push(IntList *l, int x) {
