@@ -123,11 +123,13 @@ static void screen_render(Screen *s) {
         Widget *w = s->items[i];
         if (w==NULL) continue;
         w->vtbl->render(w); //이부분이 문제
+        // if (w->closed==0)
+        // {w->vtbl->render(w);} //이부분이 문제
     }
 }
 
 static void dialog_on_event(Widget *self, int code) { //작동을 안하고 있음
-    if (code == 1) { //오 코드가 어디서 받는건지 몰랐는데 이제 이해 ㄱㄴ ㄹㅈㄷ
+    if (code == 1) { //오 코드가 어디서 받는건지 몰랐는데 이제 이해 가능
         self->closed = 1; //3번 위젯
         self=NULL;
         widget_destroy(self);
